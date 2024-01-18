@@ -7,6 +7,10 @@ import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
 
 import routes from './routes/index.js'
+import passport from './controllers/auth/auth.controller.js';
+import session from 'express-session';
+// import passportSetup from './passport.js';
+import cookieSession from 'cookie-session';
 
 
 const app = express();
@@ -16,7 +20,7 @@ dotenv.config()
 connectDB()
 
 const whitelist = [
-    'http://localhost:3000'
+    'http://localhost:3000',
 ]
 
 const corsOptions = {
@@ -30,12 +34,22 @@ const corsOptions = {
     credentials: true,
 }
 
+app.use(session({ secret: 'zandersession', resave: true, saveUninitialized: true }));
 // Middlewares
 app.use(express.json());
 app.use(cookieParser())
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
+
+
+// app.use(cookieSession({
+//     name: 'session',
+//     keys: ['zanderkey'],
+//     maxAge: 24 * 60 * 60 * 100,
+// }))
 // Routes
 app.use('/api/v1', routes)
 
@@ -50,6 +64,7 @@ app.use((err, req, res, next) => {
         stack: err.stack,
     });
 });
+
 
 
 // Start the server
